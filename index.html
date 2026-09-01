@@ -336,7 +336,8 @@ async function login(){
     queue = shuffle(candidates.filter(s=> !doneMap[s.id]));
     seenCount = Object.keys(doneMap).length;
 
-    $('badgeText').textContent = `${myNo} · ${myName}` + (myClass ? ` · ${myClass}분반` : '');
+    const CLASS_LABELS = {1:'A반', 2:'E반'};
+    $('badgeText').textContent = `${myNo} · ${myName}` + (CLASS_LABELS[myClass] ? ` · ${CLASS_LABELS[myClass]}` : '');
     $('topToolbar').style.display = 'flex';
     busy = false;
     btn.disabled = false;
