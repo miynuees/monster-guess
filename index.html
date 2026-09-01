@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2050 몬스터 도감 — 관찰 추리</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>">
+<meta name="theme-color" content="#17C9AE">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5F2FF;
+  --paper:#FFFFFF;
+  --mint:#17C9AE;
+  --mint-dark:#0EA790;
+  --mint-2:#B9F3E7;
+  --mint-3:#E1FBF5;
+  --violet:#8B5CF6;
+  --violet-dark:#7440E0;
+  --violet-2:#DCCBFA;
+  --violet-3:#F1E9FF;
+  --yellow:#FFC93C;
+  --ink:#2B2140;
+  --sub:#6E6482;
+  --line:#E3DEF7;
+  --shadow-sm:2px 2px 0 rgba(43,33,64,.9);
+  --shadow:4px 4px 0 rgba(43,33,64,.9);
+  --shadow-lg:6px 6px 0 rgba(43,33,64,.9);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+.title-font{font-family:'Black Han Sans',sans-serif;letter-spacing:-.2px;font-weight:400}
+button,input,textarea{font-family:inherit}
+.app{max-width:620px;margin:0 auto;padding:24px 20px 100px}
+
+.header{
+  text-align:center;padding:22px 20px 20px;
+  background:linear-gradient(135deg,var(--violet-2) 0%,var(--mint-2) 100%);
+  border:3px solid var(--ink);border-radius:26px;margin-bottom:18px;
+  box-shadow:var(--shadow-lg);
+}
+.header h1{font-size:26px;margin:0 0 6px}
+.header .sub{color:var(--ink);opacity:.72;font-size:13px;font-weight:500;margin:0;line-height:1.7}
+
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.student-badge{
+  display:flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--ink);
+  border-radius:99px;padding:5px 14px;font-size:12px;font-weight:800;
+}
+.toolbar-spacer{margin-left:auto}
+.btn-sm{
+  border:2px solid var(--ink);border-radius:99px;background:#fff;color:var(--ink);
+  font-size:12px;font-weight:700;padding:8px 14px;cursor:pointer;transition:.12s;
+  box-shadow:var(--shadow-sm);white-space:nowrap;
+}
+.btn-sm:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(43,33,64,.9)}
+.btn-sm:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.btn-sm.violet{color:var(--violet-dark)}
+
+.card{
+  background:var(--paper);border-radius:20px;border:2.5px solid var(--ink);
+  box-shadow:var(--shadow-lg);padding:22px;margin-bottom:16px;
+}
+.card h2{font-size:19px;margin:0 0 4px}
+.card .desc{color:var(--sub);font-size:12.5px;margin:0 0 16px;line-height:1.7;font-weight:500}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+.field .label-q{color:var(--sub);font-weight:500;font-size:11.5px;margin-left:6px}
+.field input,.field textarea{
+  width:100%;border:2px solid var(--ink);border-radius:10px;
+  padding:10px 12px;font-size:14px;font-weight:500;color:var(--ink);background:#fff;
+  resize:vertical;line-height:1.5;
+}
+.field textarea{min-height:48px}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px rgba(139,92,246,.18)}
+
+.btn-main{
+  width:100%;margin-top:6px;border:2.5px solid var(--ink);border-radius:99px;
+  background:linear-gradient(180deg,var(--mint) 0%,var(--mint-dark) 100%);
+  color:#fff;font-size:15px;font-family:'Black Han Sans',sans-serif;letter-spacing:.3px;
+  padding:13px 20px;cursor:pointer;box-shadow:var(--shadow);transition:.12s;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.btn-main:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:5px 5px 0 rgba(43,33,64,.9)}
+.btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-main.violet{background:linear-gradient(180deg,var(--violet) 0%,var(--violet-dark) 100%)}
+
+.screen{display:none}
+.screen.active{display:block;animation:screenIn .35s ease}
+@keyframes screenIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.result-frame{
+  width:100%;max-width:360px;margin:0 auto 12px;padding:10px;
+  background:linear-gradient(160deg,var(--mint-3),var(--violet-3));
+  border:2.5px solid var(--ink);border-radius:20px;box-shadow:var(--shadow);
+}
+.result-frame img{width:100%;border-radius:14px;display:block}
+.ribbon{
+  display:block;width:fit-content;margin:0 auto 12px;background:var(--yellow);
+  border:2px solid var(--ink);font-size:12.5px;font-weight:800;padding:6px 16px;
+  border-radius:99px;box-shadow:var(--shadow-sm);
+}
+.count-note{text-align:center;font-size:11.5px;color:var(--sub);font-weight:600;margin:0 0 14px}
+
+.compare-item{border:2px solid var(--ink);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.compare-item .ci-title{background:var(--ink);color:#fff;font-size:12px;font-weight:800;padding:7px 14px}
+.compare-item .ci-row{display:flex;gap:0;flex-wrap:wrap}
+.compare-item .ci-cell{flex:1;min-width:200px;padding:11px 14px;font-size:13px;line-height:1.65}
+.compare-item .ci-cell b{display:block;font-size:10.5px;margin-bottom:3px}
+.compare-item .ci-guess{background:var(--violet-3)}
+.compare-item .ci-guess b{color:var(--violet-dark)}
+.compare-item .ci-truth{background:var(--mint-3)}
+.compare-item .ci-truth b{color:var(--mint-dark)}
+
+.guess-card{background:var(--violet-3);border:2px solid var(--ink);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.guess-card .gc-head{font-size:11px;font-weight:800;color:var(--violet-dark);margin-bottom:8px}
+.guess-card .gc-line{font-size:13px;line-height:1.7;margin:2px 0}
+.guess-card .gc-line b{color:var(--ink);font-weight:800}
+.truth-box{background:var(--mint-3);border:2px dashed var(--ink);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.truth-box .gc-head{font-size:11px;font-weight:800;color:var(--mint-dark);margin-bottom:8px}
+.truth-box .gc-line{font-size:13px;line-height:1.7;margin:2px 0}
+.truth-box .gc-line b{font-weight:800}
+
+.empty{
+  text-align:center;color:var(--sub);font-size:13px;font-weight:600;
+  padding:26px;background:#fff;border:2px dashed var(--ink);border-radius:16px;line-height:1.8;
+}
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(10px);
+  background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:11px 18px;border-radius:99px;
+  box-shadow:0 6px 18px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.25s;z-index:50;
+  max-width:88vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="toolbar" id="topToolbar" style="display:none">
+    <div class="student-badge"><span id="badgeText"></span></div>
+    <span class="toolbar-spacer"></span>
+    <button class="btn-sm violet" id="myGuessesBtn">📬 내 몬스터에 온 추리</button>
+    <button class="btn-sm" id="backToGuessBtn" style="display:none">🔍 추리하러 가기</button>
+  </div>
+
+  <div class="header">
+    <h1 class="title-font">🔍 미확인생명체 관찰 추리</h1>
+    <p class="sub">다른 연구원이 발견한 생명체의 그림이 도착했다.<br>그림을 관찰하고, 이 생명체의 정체를 추리해 기록하라!</p>
+  </div>
+
+  <!-- 로그인 -->
+  <section class="screen active" id="screen-login">
+    <div class="card" style="max-width:400px;margin:0 auto">
+      <h2 class="title-font">🔑 연구원 등록</h2>
+      <p class="desc">몬스터 도감에서 쓴 학번과 이름 그대로 입력해주세요.</p>
+      <div class="field">
+        <label for="loginNo">학번</label>
+        <input type="text" id="loginNo" placeholder="예: 20305">
+      </div>
+      <div class="field">
+        <label for="loginName">이름</label>
+        <input type="text" id="loginName" placeholder="예: 홍길동">
+      </div>
+      <button class="btn-main" id="loginBtn">🚪 입장하기</button>
+    </div>
+  </section>
+
+  <!-- 추리 화면 -->
+  <section class="screen" id="screen-guess">
+    <div class="card">
+      <span class="ribbon" id="guessRibbon">🐾</span>
+      <div class="result-frame"><img id="guessImage" alt="관찰 대상 생명체"></div>
+      <p class="count-note" id="guessCount"></p>
+      <p class="desc" style="text-align:center">그림에서 본 것을 근거로 추리해서 적어주세요.</p>
+      <div class="field">
+        <label for="g-personality">💭 성격<span class="label-q">이 생명체는 어떤 성격일까요?</span></label>
+        <textarea id="g-personality" placeholder="예: 가시를 잔뜩 세우고 있는 걸 보니 겁이 많고 방어적인 것 같다"></textarea>
+      </div>
+      <div class="field">
+        <label for="g-ability">⚡ 능력<span class="label-q">어떤 능력이 있을까요?</span></label>
+        <textarea id="g-ability" placeholder="예: 몸 주변의 초록 김을 보니 냄새나 가스를 뿜을 것 같다"></textarea>
+      </div>
+      <div class="field">
+        <label for="g-habitat">🌍 서식지<span class="label-q">어디에 살고 있을까요?</span></label>
+        <textarea id="g-habitat" placeholder="예: 몸에 물때가 낀 걸 보니 축축하고 어두운 곳에 살 것 같다"></textarea>
+      </div>
+      <button class="btn-main" id="submitGuessBtn">🔍 추리 제출하기</button>
+    </div>
+  </section>
+
+  <!-- 정답 비교 화면 -->
+  <section class="screen" id="screen-reveal">
+    <div class="card">
+      <span class="ribbon" id="revealRibbon">📋 정체 공개</span>
+      <div class="result-frame"><img id="revealImage" alt="생명체"></div>
+      <div id="revealBody"></div>
+      <button class="btn-main" id="nextBtn">🐾 다음 생명체 관찰하기</button>
+    </div>
+  </section>
+
+  <!-- 내 몬스터에 온 추리 -->
+  <section class="screen" id="screen-mine">
+    <div class="card">
+      <h2 class="title-font">📬 내 몬스터에 온 추리</h2>
+      <p class="desc">친구들이 내 그림만 보고 추리한 내용이에요. 내 설정과 비교해보고, 전달되지 않은 설정이 있다면 최종 작품에서 어떻게 드러낼지 생각해보세요.</p>
+      <div id="mineBody"></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script>
+const GUESS_KEYS = ['personality','ability','habitat'];
+const GUESS_TITLES = {personality:'성격', ability:'능력', habitat:'서식지'};
+const MISSING_IMAGE = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#EDEAF7"/><text x="200" y="200" text-anchor="middle" font-size="20" fill="#6E6482" font-family="sans-serif">이미지 없음</text></svg>');
+
+firebase.initializeApp({
+  apiKey: "AIzaSyBtSooSc-eg4zMHQ_QF-ErmYJmtaYT1Fkg",
+  authDomain: "limi-88231.firebaseapp.com",
+  projectId: "limi-88231",
+  messagingSenderId: "361025367626",
+  appId: "1:361025367626:web:19d4e19d54558d4a79c0b3"
+});
+const db = firebase.firestore();
+const $ = id => document.getElementById(id);
+
+let myKey = null;
+let myNo = '', myName = '';
+let candidates = [];   // 추리할 수 있는 다른 학생들 {id, data}
+let queue = [];        // 아직 안 본 순서
+let current = null;    // {id, data, image, stageIdx}
+let seenCount = 0;
+let busy = false;
+
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(()=> t.classList.remove('show'), 2800);
+}
+function escapeHTML(s){
+  return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+function sanitizeKey(no, name){
+  const clean = s => (s || '').trim().replace(/\s+/g,'');
+  return clean(no) + '_' + clean(name);
+}
+function cloudId(key){
+  return String(key).replace(/[\/#$\[\].]/g, '_');
+}
+function goTo(name){
+  document.querySelectorAll('.screen').forEach(s=> s.classList.remove('active'));
+  $('screen-' + name).classList.add('active');
+  $('myGuessesBtn').style.display = name === 'mine' ? 'none' : '';
+  $('backToGuessBtn').style.display = name === 'mine' ? '' : 'none';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+/* 이미 추리한 몬스터 기록: 서버에 저장해서 기기를 바꿔도 같은 몬스터가 다시 안 나옴 */
+let doneMap = {};
+function doneRef(){ return db.collection('monsterGuessDone').doc(myKey); }
+async function loadDone(){
+  doneMap = {};
+  try{
+    const snap = await doneRef().get();
+    if(snap.exists) doneMap = (snap.data() || {}).done || {};
+  }catch(e){ console.error(e); }
+}
+async function markDone(ownerId){
+  doneMap[ownerId] = true;
+  try{
+    await doneRef().set({done: {[ownerId]: true}, updatedAt: Date.now()}, {merge: true});
+  }catch(e){ console.error(e); }
+}
+function shuffle(arr){
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+/* ── 로그인: 서버에서 몬스터 목록을 받아 추리 대기열 구성 ── */
+$('loginBtn').addEventListener('click', login);
+['loginNo','loginName'].forEach(id=>{
+  $(id).addEventListener('keydown', e=>{ if(e.key === 'Enter') login(); });
+});
+
+async function login(){
+  const no = $('loginNo').value.trim();
+  const name = $('loginName').value.trim();
+  if(!no || !name){ toast('학번과 이름을 모두 입력해주세요'); return; }
+  if(busy) return;
+  busy = true;
+  const btn = $('loginBtn');
+  btn.disabled = true;
+  btn.textContent = '생명체 목록을 받아오는 중이에요...';
+  try{
+    myKey = cloudId(sanitizeKey(no, name));
+    myNo = no; myName = name;
+    const snap = await db.collection('monsterDex').get();
+    const all = [];
+    snap.forEach(d=>{
+      const data = d.data() || {};
+      if((data.stages || []).length > 0) all.push({id: d.id, data});
+    });
+    candidates = all.filter(s=> s.id !== myKey);
+    await loadDone();
+    queue = shuffle(candidates.filter(s=> !doneMap[s.id]));
+    seenCount = Object.keys(doneMap).length;
+
+    $('badgeText').textContent = `${myNo} · ${myName}`;
+    $('topToolbar').style.display = 'flex';
+    busy = false;
+    btn.disabled = false;
+    btn.textContent = '🚪 입장하기';
+    nextMonster();
+  }catch(e){
+    console.error(e);
+    busy = false;
+    btn.disabled = false;
+    btn.textContent = '🚪 입장하기';
+    toast('서버에 연결하지 못했어요. 인터넷을 확인하고 다시 시도해주세요');
+  }
+}
+
+/* ── 다음 몬스터 뽑기 + 이미지 가져오기 ── */
+async function nextMonster(){
+  if(queue.length === 0){
+    goTo('guess');
+    $('screen-guess').querySelector('.card').innerHTML = `
+      <div class="empty">지금 관찰할 수 있는 생명체를 모두 추리했어요! 🎉<br>
+      위의 "내 몬스터에 온 추리" 버튼으로 친구들의 추리를 확인해보세요.</div>`;
+    return;
+  }
+  current = queue.shift();
+  const d = current.data;
+  const stageIdx = d.stages.length - 1;
+  const meta = d.stages[stageIdx];
+  const picked = (meta.pickedIndex !== undefined && meta.pickedIndex !== null) ? meta.pickedIndex : (meta.attemptCount || 1) - 1;
+  let image = MISSING_IMAGE;
+  try{
+    const imgDoc = await db.collection('monsterDex').doc(current.id).collection('images').doc(`s${stageIdx}_a${picked}`).get();
+    if(imgDoc.exists) image = (imgDoc.data() || {}).data || MISSING_IMAGE;
+  }catch(e){ console.error(e); }
+  if(image === MISSING_IMAGE){
+    // 그림이 없는 기록은 건너뜀
+    nextMonster();
+    return;
+  }
+  current.image = image;
+  current.stageIdx = stageIdx;
+
+  $('guessRibbon').textContent = `🐾 ${((d.fields && d.fields.name) || '이름 미상')}`;
+  $('guessImage').src = image;
+  $('guessCount').textContent = `${seenCount + 1}번째 관찰 기록`;
+  GUESS_KEYS.forEach(k=> $('g-' + k).value = '');
+  goTo('guess');
+}
+
+/* ── 추리 제출 → 정답 비교 ── */
+$('submitGuessBtn').addEventListener('click', async ()=>{
+  if(busy || !current) return;
+  const guess = {};
+  for(const k of GUESS_KEYS){
+    guess[k] = $('g-' + k).value.trim();
+    if(!guess[k]){ toast(`${GUESS_TITLES[k]} 칸을 채워주세요`); return; }
+  }
+  busy = true;
+  const btn = $('submitGuessBtn');
+  btn.disabled = true;
+  try{
+    await db.collection('monsterDex').doc(current.id).collection('guesses').add({
+      from: myKey,
+      personality: guess.personality,
+      ability: guess.ability,
+      habitat: guess.habitat,
+      at: Date.now(),
+    });
+  }catch(e){
+    console.error(e);
+    toast('추리를 서버에 저장하지 못했어요. 비교는 그대로 보여드릴게요');
+  }
+  await markDone(current.id);
+  seenCount = Object.keys(doneMap).length;
+
+  // 실제 설정과 비교 (그 단계에 기록된 설정 기준)
+  const truth = (current.data.stages[current.stageIdx] || {}).fields || current.data.fields || {};
+  $('revealRibbon').textContent = `📋 ${((current.data.fields && current.data.fields.name) || '이름 미상')}의 정체`;
+  $('revealImage').src = current.image;
+  $('revealBody').innerHTML = GUESS_KEYS.map(k=>`
+    <div class="compare-item">
+      <div class="ci-title">${GUESS_TITLES[k]}</div>
+      <div class="ci-row">
+        <div class="ci-cell ci-guess"><b>🔍 내 추리</b>${escapeHTML(guess[k])}</div>
+        <div class="ci-cell ci-truth"><b>📖 실제 설정</b>${escapeHTML(truth[k] || '(기록 없음)')}</div>
+      </div>
+    </div>`).join('');
+  busy = false;
+  btn.disabled = false;
+  goTo('reveal');
+});
+
+$('nextBtn').addEventListener('click', ()=>{ if(!busy) nextMonster(); });
+
+/* ── 내 몬스터에 온 추리 ── */
+let screenBeforeMine = 'guess';
+$('myGuessesBtn').addEventListener('click', showMine);
+$('backToGuessBtn').addEventListener('click', ()=>{
+  if(screenBeforeMine === 'reveal') goTo('reveal'); // 비교 화면에서 왔으면 그대로 복귀
+  else if(current) goTo('guess');                   // 쓰던 추리 이어서
+  else nextMonster();
+});
+
+async function showMine(){
+  screenBeforeMine = $('screen-reveal').classList.contains('active') ? 'reveal' : 'guess';
+  goTo('mine');
+  $('mineBody').innerHTML = '<div class="empty">불러오는 중이에요...</div>';
+  try{
+    const myDoc = await db.collection('monsterDex').doc(myKey).get();
+    if(!myDoc.exists || ((myDoc.data() || {}).stages || []).length === 0){
+      $('mineBody').innerHTML = '<div class="empty">아직 내 몬스터 기록이 서버에 없어요.<br>몬스터 도감에서 로그인해 소환을 진행하면 여기에서 추리를 받을 수 있어요.</div>';
+      return;
+    }
+    const myData = myDoc.data();
+    const snap = await db.collection('monsterDex').doc(myKey).collection('guesses').get();
+    const guesses = [];
+    snap.forEach(d=> guesses.push(d.data() || {}));
+    guesses.sort((a,b)=> (a.at || 0) - (b.at || 0));
+
+    const truthHTML = `
+      <div class="truth-box">
+        <div class="gc-head">📖 내 실제 설정</div>
+        ${GUESS_KEYS.map(k=> `<div class="gc-line"><b>${GUESS_TITLES[k]}</b> ${escapeHTML((myData.fields || {})[k] || '')}</div>`).join('')}
+      </div>`;
+
+    if(guesses.length === 0){
+      $('mineBody').innerHTML = truthHTML + '<div class="empty">아직 도착한 추리가 없어요.<br>친구들이 내 몬스터를 관찰하면 여기에 쌓여요.</div>';
+      return;
+    }
+    $('mineBody').innerHTML = truthHTML + guesses.map((g, i)=>`
+      <div class="guess-card">
+        <div class="gc-head">🔍 ${i+1}번째 추리 (익명)</div>
+        ${GUESS_KEYS.map(k=> `<div class="gc-line"><b>${GUESS_TITLES[k]}</b> ${escapeHTML(g[k] || '')}</div>`).join('')}
+      </div>`).join('') +
+      `<p style="font-size:12px;color:var(--sub);line-height:1.7;margin:14px 2px 0">💡 친구들의 추리와 내 설정이 다른 부분이 있나요? 그건 그림에 아직 담기지 않은 설정이에요. 최종 작품에서 어떻게 드러낼지 생각해보세요.</p>`;
+  }catch(e){
+    console.error(e);
+    $('mineBody').innerHTML = '<div class="empty">추리를 불러오지 못했어요. 인터넷 연결을 확인해주세요.</div>';
+  }
+}
+</script>
+</body>
+</html>
