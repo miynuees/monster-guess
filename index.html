@@ -320,12 +320,23 @@ async function login(){
       const data = d.data() || {};
       if((data.stages || []).length > 0) all.push({id: d.id, data});
     });
-    candidates = all.filter(s=> s.id !== myKey);
+
+    // 선생님이 분반을 지정해두면 나와 같은 분반의 몬스터는 빼고 보여줌 (서로 설정을 이미 아니까)
+    let classMap = {};
+    try{
+      const cfg = await db.collection('monsterConfig').doc('classes').get();
+      if(cfg.exists) classMap = (cfg.data() || {}).map || {};
+    }catch(e){ console.error(e); }
+    const myClass = classMap[myKey] || null;
+    candidates = all.filter(s=>
+      s.id !== myKey && !(myClass && classMap[s.id] && classMap[s.id] === myClass)
+    );
+
     await loadDone();
     queue = shuffle(candidates.filter(s=> !doneMap[s.id]));
     seenCount = Object.keys(doneMap).length;
 
-    $('badgeText').textContent = `${myNo} · ${myName}`;
+    $('badgeText').textContent = `${myNo} · ${myName}` + (myClass ? ` · ${myClass}분반` : '');
     $('topToolbar').style.display = 'flex';
     busy = false;
     btn.disabled = false;
