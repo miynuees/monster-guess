@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>관찰 추리 — 선생님 페이지</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔬</text></svg>">
+<meta name="theme-color" content="#17C9AE">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5F2FF;
+  --paper:#FFFFFF;
+  --mint:#17C9AE;
+  --mint-dark:#0EA790;
+  --mint-2:#B9F3E7;
+  --mint-3:#E1FBF5;
+  --violet:#8B5CF6;
+  --violet-dark:#7440E0;
+  --violet-2:#DCCBFA;
+  --violet-3:#F1E9FF;
+  --yellow:#FFC93C;
+  --ink:#2B2140;
+  --sub:#6E6482;
+  --line:#E3DEF7;
+  --shadow-sm:2px 2px 0 rgba(43,33,64,.9);
+  --shadow:4px 4px 0 rgba(43,33,64,.9);
+  --shadow-lg:6px 6px 0 rgba(43,33,64,.9);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+.title-font{font-family:'Black Han Sans',sans-serif;letter-spacing:-.2px;font-weight:400}
+button,input{font-family:inherit}
+.app{max-width:860px;margin:0 auto;padding:24px 20px 100px}
+
+.header{
+  text-align:center;padding:22px 20px 20px;
+  background:linear-gradient(135deg,var(--mint-2) 0%,var(--violet-2) 100%);
+  border:3px solid var(--ink);border-radius:26px;margin-bottom:18px;
+  box-shadow:var(--shadow-lg);
+}
+.header h1{font-size:26px;margin:0 0 6px}
+.header .sub{color:var(--ink);opacity:.72;font-size:13px;font-weight:500;margin:0;line-height:1.7}
+
+.card{
+  background:var(--paper);border-radius:20px;border:2.5px solid var(--ink);
+  box-shadow:var(--shadow-lg);padding:22px;margin-bottom:16px;
+}
+.card h2{font-size:19px;margin:0 0 4px}
+.card .desc{color:var(--sub);font-size:12.5px;margin:0 0 16px;line-height:1.7;font-weight:500}
+
+.field input{
+  width:100%;border:2px solid var(--ink);border-radius:10px;
+  padding:10px 12px;font-size:14px;font-weight:500;color:var(--ink);background:#fff;
+}
+.field input:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px rgba(139,92,246,.18)}
+
+.btn-main{
+  width:100%;margin-top:12px;border:2.5px solid var(--ink);border-radius:99px;
+  background:linear-gradient(180deg,var(--mint) 0%,var(--mint-dark) 100%);
+  color:#fff;font-size:15px;font-family:'Black Han Sans',sans-serif;letter-spacing:.3px;
+  padding:12px 20px;cursor:pointer;box-shadow:var(--shadow);transition:.12s;
+}
+.btn-main:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:5px 5px 0 rgba(43,33,64,.9)}
+.btn-main:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.toolbar input{
+  flex:1;min-width:160px;border:2px solid var(--ink);border-radius:99px;
+  padding:9px 16px;font-size:13px;font-weight:500;background:#fff;
+}
+.toolbar input:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px rgba(139,92,246,.18)}
+.btn-sm{
+  border:2px solid var(--ink);border-radius:99px;background:#fff;color:var(--ink);
+  font-size:12px;font-weight:700;padding:8px 14px;cursor:pointer;transition:.12s;
+  box-shadow:var(--shadow-sm);white-space:nowrap;
+}
+.btn-sm:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(43,33,64,.9)}
+.btn-sm:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.btn-sm.violet{color:var(--violet-dark)}
+
+.count-pill{
+  background:var(--yellow);border:2px solid var(--ink);border-radius:99px;
+  font-size:12px;font-weight:800;padding:7px 14px;box-shadow:var(--shadow-sm);white-space:nowrap;
+}
+
+/* 요약 숫자 */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{
+  background:#fff;border:2px solid var(--ink);border-radius:14px;padding:12px 14px;
+  box-shadow:var(--shadow-sm);text-align:center;
+}
+.stat .n{font-family:'Black Han Sans',sans-serif;font-size:24px;line-height:1.1;color:var(--violet-dark)}
+.stat .l{font-size:11px;font-weight:700;color:var(--sub);margin-top:3px}
+
+/* 보기 전환 탭 */
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{
+  flex:1;border:2.5px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);
+  font-size:13px;font-weight:800;padding:10px 12px;cursor:pointer;transition:.12s;box-shadow:var(--shadow-sm);
+}
+.tab.on{background:var(--ink);color:#fff}
+.tab:hover:not(.on){transform:translate(-1px,-1px)}
+
+.filter-chip{
+  border:2px solid var(--ink);border-radius:99px;background:#fff;color:var(--ink);
+  font-size:12px;font-weight:700;padding:7px 14px;cursor:pointer;transition:.12s;white-space:nowrap;
+}
+.filter-chip.on{background:var(--ink);color:#fff}
+
+.student-row{
+  display:flex;align-items:center;gap:10px;flex-wrap:nowrap;
+  background:#fff;border:2px solid var(--ink);border-radius:12px;
+  padding:8px 12px;margin-bottom:7px;cursor:pointer;transition:.12s;
+}
+.student-row:hover{background:var(--violet-3)}
+.student-row .who{font-weight:800;font-size:13px;flex:none;white-space:nowrap}
+.student-row .monster{
+  color:var(--violet-dark);font-weight:700;font-size:12.5px;
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.student-row .meta{color:var(--sub);font-size:10.5px;flex:none;white-space:nowrap}
+.student-row .arrow{flex:none;font-size:12px;color:var(--sub);transition:.2s}
+.student-row.open .arrow{transform:rotate(90deg)}
+.badge{
+  flex:none;border:1.5px solid var(--ink);border-radius:99px;
+  font-size:10px;font-weight:800;padding:2px 8px;white-space:nowrap;
+}
+.badge.zero{background:#F1EEF9;color:var(--sub)}
+.badge.some{background:var(--mint-3);color:var(--mint-dark)}
+.badge.many{background:var(--violet-3);color:var(--violet-dark)}
+.badge.cls1{background:var(--mint);color:#fff}
+.badge.cls2{background:var(--violet);color:#fff}
+@media (max-width:640px){
+  .student-row .meta{display:none}
+}
+
+.detail{
+  background:var(--violet-3);border:2.5px dashed var(--ink);border-radius:16px;
+  padding:16px;margin:-4px 0 12px;
+}
+.detail .head-row{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+.detail .thumb{
+  width:120px;height:120px;flex:none;border-radius:12px;border:2.5px solid var(--ink);
+  background:#fff;object-fit:cover;
+}
+.detail .truth{flex:1;min-width:220px;background:var(--mint-3);border:2px solid var(--ink);border-radius:12px;padding:10px 14px}
+.detail .truth .h{font-size:11px;font-weight:800;color:var(--mint-dark);margin-bottom:6px}
+.kv{display:flex;gap:10px;padding:4px 0;border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.6}
+.kv:last-child{border-bottom:none}
+.kv b{flex:none;width:52px;color:var(--ink)}
+.kv span{flex:1;white-space:pre-wrap}
+
+.guess-card{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:10px 14px;margin-bottom:8px}
+.guess-card .gh{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:800;color:var(--violet-dark);margin-bottom:6px;flex-wrap:wrap}
+.guess-card .gh .t{color:var(--sub);font-weight:600;font-size:10.5px;margin-left:auto}
+.guess-card .gh .target{color:var(--mint-dark)}
+
+/* 학생별 보기: 내 추리 vs 실제 설정 나란히 */
+.cmp{display:flex;gap:0;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;margin-top:4px}
+.cmp .c{flex:1;min-width:180px;padding:8px 10px;font-size:12.5px;line-height:1.6}
+.cmp .c b{display:block;font-size:10px;margin-bottom:2px}
+.cmp .cg{background:var(--violet-3)}
+.cmp .cg b{color:var(--violet-dark)}
+.cmp .ct{background:var(--mint-3)}
+.cmp .ct b{color:var(--mint-dark)}
+
+.empty{
+  text-align:center;color:var(--sub);font-size:13px;font-weight:600;
+  padding:30px;background:#fff;border:2px dashed var(--ink);border-radius:16px;line-height:1.8;
+}
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(10px);
+  background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:11px 18px;border-radius:99px;
+  box-shadow:0 6px 18px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.25s;z-index:50;
+  max-width:88vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media print{
+  body{background:#fff}
+  .app{max-width:none;padding:0}
+  .header,.toolbar,.tabs,.stats,.hint{display:none!important}
+  .card,.student-row,.detail,.guess-card{box-shadow:none}
+  .student-row{break-inside:avoid;margin-top:8px}
+  .detail{break-inside:avoid;background:#fff}
+  .detail .thumb{width:90px;height:90px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <h1 class="title-font">🔬 관찰 추리 — 선생님 페이지</h1>
+    <p class="sub">학생들이 서로의 몬스터를 보고 적은 추리를 한눈에 모아 볼 수 있어요.</p>
+  </div>
+
+  <!-- 비밀번호 -->
+  <section id="authScreen">
+    <div class="card" style="max-width:380px;margin:0 auto">
+      <h2 class="title-font">🔑 선생님 확인</h2>
+      <p class="desc">비밀번호를 입력해주세요.</p>
+      <div class="field"><input type="password" id="pwInput" placeholder="비밀번호"></div>
+      <button class="btn-main" id="pwBtn">입장하기</button>
+    </div>
+  </section>
+
+  <!-- 본 화면 -->
+  <section id="mainScreen" style="display:none">
+    <div class="stats">
+      <div class="stat"><div class="n" id="statGuesses">0</div><div class="l">제출된 추리</div></div>
+      <div class="stat"><div class="n" id="statWriters">0</div><div class="l">추리를 쓴 학생</div></div>
+      <div class="stat"><div class="n" id="statReceived">0</div><div class="l">추리를 받은 몬스터</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab on" data-view="received">📬 몬스터별 · 받은 추리</button>
+      <button class="tab" data-view="written">✍️ 학생별 · 쓴 추리</button>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="🔍 학번이나 이름으로 검색 (예: 202)">
+      <span class="count-pill" id="countPill">0명</span>
+      <button class="btn-sm" id="expandBtn">📂 전체 펼치기</button>
+      <button class="btn-sm" id="refreshBtn">🔄 새로고침</button>
+      <button class="btn-sm violet" id="printBtn">🖨️ 인쇄 / PDF</button>
+    </div>
+    <div class="toolbar" style="margin-bottom:8px">
+      <button class="filter-chip on" data-cf="all">전체</button>
+      <button class="filter-chip" data-cf="1">A반</button>
+      <button class="filter-chip" data-cf="2">E반</button>
+      <button class="filter-chip" data-cf="none">분반 미지정</button>
+      <button class="filter-chip" data-cf="zero">0건만</button>
+    </div>
+    <p class="hint" id="hintText" style="font-size:11.5px;color:var(--sub);margin:0 0 14px;line-height:1.6"></p>
+    <div id="listBody"></div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script>
+const PASSWORD = '0615';
+const GUESS_KEYS = ['personality','ability','habitat'];
+const GUESS_TITLES = {personality:'성격', ability:'능력', habitat:'서식지'};
+const CLASS_LABELS = {1:'A반', 2:'E반'};
+const MISSING_IMAGE = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#EDEAF7"/><text x="200" y="200" text-anchor="middle" font-size="20" fill="#6E6482" font-family="sans-serif">이미지 없음</text></svg>');
+const HINTS = {
+  received: '💡 몬스터 주인별로 친구들이 보낸 추리를 모아요. 학생 페이지에는 익명으로 보이지만 여기서는 누가 썼는지도 나와요. 줄을 누르면 실제 설정과 추리를 함께 볼 수 있어요.',
+  written: '💡 학생 한 명이 다른 몬스터들에 적은 추리를 모아요. 각 추리 옆에 그 몬스터의 실제 설정을 나란히 보여주니 관찰 근거가 얼마나 맞았는지 바로 볼 수 있어요.',
+};
+
+firebase.initializeApp({
+  apiKey: "AIzaSyBtSooSc-eg4zMHQ_QF-ErmYJmtaYT1Fkg",
+  authDomain: "limi-88231.firebaseapp.com",
+  projectId: "limi-88231",
+  messagingSenderId: "361025367626",
+  appId: "1:361025367626:web:19d4e19d54558d4a79c0b3"
+});
+const db = firebase.firestore();
+const $ = id => document.getElementById(id);
+
+let students = [];        // {id, data}  monsterDex 문서
+let studentById = {};     // id → {id, data}
+let received = {};        // 몬스터 주인 id → [추리]
+let written = {};         // 추리 쓴 학생 id → [{...추리, target: 주인 id}]
+let classMap = {};        // 학생 id → 1 또는 2
+let classFilter = 'all';
+let view = 'received';
+let openIds = new Set();
+const imageCache = {};    // id → dataUri
+
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(()=> t.classList.remove('show'), 2800);
+}
+function escapeHTML(s){
+  return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+function fmtTime(ts){
+  if(!ts) return '';
+  try{ return new Date(ts).toLocaleString('ko-KR', {month:'numeric', day:'numeric', hour:'numeric', minute:'2-digit'}); }
+  catch(e){ return ''; }
+}
+
+/* ── 비밀번호 ── */
+function enter(){
+  $('authScreen').style.display = 'none';
+  $('mainScreen').style.display = 'block';
+  $('hintText').textContent = HINTS[view];
+  loadAll();
+}
+$('pwBtn').addEventListener('click', ()=>{
+  if($('pwInput').value === PASSWORD){
+    sessionStorage.setItem('mgTeacherAuth','1');
+    enter();
+  }else{
+    toast('비밀번호가 달라요');
+  }
+});
+$('pwInput').addEventListener('keydown', e=>{ if(e.key === 'Enter') $('pwBtn').click(); });
+if(sessionStorage.getItem('mgTeacherAuth') === '1') enter();
+
+/* ── 학생 이름 찾기: 추리의 from 값은 몬스터 도감 문서 id와 같은 형식 (학번_이름) ── */
+function whoIs(id){
+  const s = studentById[id];
+  if(s) return {no: s.data.studentNo || '', name: s.data.studentName || ''};
+  const m = String(id || '').match(/^([^_]*)_(.*)$/);
+  return m ? {no: m[1], name: m[2]} : {no: '', name: id || '?'};
+}
+function whoLabel(id){
+  const w = whoIs(id);
+  return `${w.no} ${w.name}`.trim() || '?';
+}
+function monsterName(id){
+  const s = studentById[id];
+  return (s && s.data.fields && s.data.fields.name) ? s.data.fields.name : '(이름 없음)';
+}
+function truthOf(id){
+  const s = studentById[id];
+  if(!s) return {};
+  const stages = s.data.stages || [];
+  const last = stages[stages.length - 1];
+  return (last && last.fields) || s.data.fields || {};
+}
+
+/* ── 데이터 불러오기: 학생 목록 + 학생마다 guesses 하위 컬렉션 ── */
+async function loadAll(){
+  $('listBody').innerHTML = '<div class="empty">추리를 모으는 중이에요...</div>';
+  try{
+    const [snap, cfgSnap] = await Promise.all([
+      db.collection('monsterDex').get(),
+      db.collection('monsterConfig').doc('classes').get(),
+    ]);
+    classMap = cfgSnap.exists ? ((cfgSnap.data() || {}).map || {}) : {};
+    students = [];
+    studentById = {};
+    snap.forEach(d=>{
+      const s = {id: d.id, data: d.data() || {}};
+      students.push(s);
+      studentById[s.id] = s;
+    });
+    students.sort((a,b)=> String(a.data.studentNo||'').localeCompare(String(b.data.studentNo||''), 'ko', {numeric:true}));
+
+    received = {};
+    written = {};
+    const guessSnaps = await Promise.all(students.map(s=> db.collection('monsterDex').doc(s.id).collection('guesses').get()));
+    guessSnaps.forEach((gs, i)=>{
+      const owner = students[i].id;
+      gs.forEach(d=>{
+        const g = Object.assign({}, d.data() || {}, {target: owner, docId: d.id});
+        (received[owner] = received[owner] || []).push(g);
+        if(g.from) (written[g.from] = written[g.from] || []).push(g);
+      });
+    });
+    Object.values(received).forEach(arr=> arr.sort((a,b)=> (a.at||0) - (b.at||0)));
+    Object.values(written).forEach(arr=> arr.sort((a,b)=> (a.at||0) - (b.at||0)));
+
+    // 추리는 썼는데 도감 문서가 없는 학생(예: 이름을 다르게 입력)도 학생별 목록에 넣어줌
+    Object.keys(written).forEach(id=>{
+      if(!studentById[id]){
+        const w = whoIs(id);
+        const s = {id, data: {studentNo: w.no, studentName: w.name, fields: {}, stages: []}, ghost: true};
+        students.push(s);
+        studentById[id] = s;
+      }
+    });
+    students.sort((a,b)=> String(a.data.studentNo||'').localeCompare(String(b.data.studentNo||''), 'ko', {numeric:true}));
+
+    const total = Object.values(received).reduce((n, arr)=> n + arr.length, 0);
+    $('statGuesses').textContent = total;
+    $('statWriters').textContent = Object.keys(written).length;
+    $('statReceived').textContent = Object.keys(received).length;
+    renderList();
+  }catch(e){
+    console.error(e);
+    $('listBody').innerHTML = '<div class="empty">서버에서 추리를 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침을 눌러주세요.</div>';
+  }
+}
+
+function countOf(id){
+  return ((view === 'received' ? received[id] : written[id]) || []).length;
+}
+function filteredStudents(){
+  const q = $('searchInput').value.trim().toLowerCase();
+  return students.filter(s=>{
+    // 몬스터별 보기에서는 도감 기록이 있는 학생만, 학생별 보기에서는 모두
+    if(view === 'received' && s.ghost) return false;
+    if(classFilter === '1' && classMap[s.id] !== 1) return false;
+    if(classFilter === '2' && classMap[s.id] !== 2) return false;
+    if(classFilter === 'none' && classMap[s.id]) return false;
+    if(classFilter === 'zero' && countOf(s.id) > 0) return false;
+    if(!q) return true;
+    return String(s.data.studentNo||'').toLowerCase().includes(q) ||
+           String(s.data.studentName||'').toLowerCase().includes(q);
+  });
+}
+function countBadge(n){
+  const cls = n === 0 ? 'zero' : (n >= 3 ? 'many' : 'some');
+  return `<span class="badge ${cls}">${n}건</span>`;
+}
+function classBadge(id){
+  const c = classMap[id];
+  return c ? `<span class="badge cls${c}">${CLASS_LABELS[c]}</span>` : '';
+}
+
+function renderList(){
+  const list = filteredStudents();
+  $('countPill').textContent = list.length + '명';
+  if(list.length === 0){
+    $('listBody').innerHTML = '<div class="empty">보여줄 학생이 없어요.<br>학생들이 추리를 제출하면 여기에 모여요.</div>';
+    return;
+  }
+  $('listBody').innerHTML = list.map(s=>{
+    const d = s.data;
+    const n = countOf(s.id);
+    const arr = (view === 'received' ? received[s.id] : written[s.id]) || [];
+    const last = arr.length ? arr[arr.length - 1].at : 0;
+    const isOpen = openIds.has(s.id);
+    return `
+    <div class="student-row${isOpen ? ' open' : ''}" data-id="${escapeHTML(s.id)}">
+      <span class="arrow">▶</span>
+      <span class="who">${escapeHTML(d.studentNo||'?')} ${escapeHTML(d.studentName||'')}</span>
+      <span class="monster">${s.ghost ? '<span style="color:var(--sub)">도감 기록 없음</span>' : '🐾 ' + escapeHTML(monsterName(s.id))}</span>
+      ${classBadge(s.id)}
+      ${countBadge(n)}
+      <span class="meta" title="마지막 추리 시각">${fmtTime(last)}</span>
+    </div>
+    <div class="detail" id="detail-${escapeHTML(s.id)}" style="display:${isOpen ? 'block' : 'none'}"></div>`;
+  }).join('');
+
+  $('listBody').querySelectorAll('.student-row').forEach(row=>{
+    row.addEventListener('click', ()=> toggleDetail(row.dataset.id));
+  });
+  list.forEach(s=>{ if(openIds.has(s.id)) fillDetail(s.id); });
+}
+
+/* ── 몬스터 그림: 펼칠 때만 불러옴 (용량이 커서) ── */
+async function getImage(id){
+  if(imageCache[id] !== undefined) return imageCache[id];
+  const s = studentById[id];
+  if(!s || !(s.data.stages || []).length){ imageCache[id] = MISSING_IMAGE; return MISSING_IMAGE; }
+  const stageIdx = s.data.stages.length - 1;
+  const meta = s.data.stages[stageIdx];
+  const picked = (meta.pickedIndex !== undefined && meta.pickedIndex !== null) ? meta.pickedIndex : (meta.attemptCount || 1) - 1;
+  try{
+    const doc = await db.collection('monsterDex').doc(id).collection('images').doc(`s${stageIdx}_a${picked}`).get();
+    imageCache[id] = doc.exists ? ((doc.data() || {}).data || MISSING_IMAGE) : MISSING_IMAGE;
+  }catch(e){ console.error(e); imageCache[id] = MISSING_IMAGE; }
+  return imageCache[id];
+}
+
+function toggleDetail(id){
+  const row = $('listBody').querySelector(`.student-row[data-id="${CSS.escape(id)}"]`);
+  const box = $('detail-' + id);
+  if(!box) return;
+  if(openIds.has(id)){
+    openIds.delete(id);
+    box.style.display = 'none';
+    if(row) row.classList.remove('open');
+    return;
+  }
+  openIds.add(id);
+  box.style.display = 'block';
+  if(row) row.classList.add('open');
+  fillDetail(id);
+}
+
+function truthHTML(id){
+  const t = truthOf(id);
+  return GUESS_KEYS.map(k=> `<div class="kv"><b>${GUESS_TITLES[k]}</b><span>${escapeHTML(t[k] || '(기록 없음)')}</span></div>`).join('');
+}
+
+async function fillDetail(id){
+  const box = $('detail-' + id);
+  if(!box) return;
+  if(view === 'received') await fillReceived(id, box);
+  else fillWritten(id, box);
+}
+
+/* 몬스터별: 그림 + 실제 설정 + 받은 추리 목록 */
+async function fillReceived(id, box){
+  const arr = received[id] || [];
+  box.innerHTML = `
+    <div class="head-row">
+      <img class="thumb" id="thumb-${escapeHTML(id)}" src="${MISSING_IMAGE}" alt="">
+      <div class="truth"><div class="h">📖 ${escapeHTML(monsterName(id))} · 실제 설정</div>${truthHTML(id)}</div>
+    </div>
+    ${arr.length === 0 ? '<div class="empty" style="padding:16px">아직 이 몬스터에 도착한 추리가 없어요.</div>' :
+      arr.map((g, i)=>`
+      <div class="guess-card">
+        <div class="gh">🔍 ${i+1}번째 추리 · <span>${escapeHTML(whoLabel(g.from))}</span><span class="t">${fmtTime(g.at)}</span></div>
+        ${GUESS_KEYS.map(k=> `<div class="kv"><b>${GUESS_TITLES[k]}</b><span>${escapeHTML(g[k] || '')}</span></div>`).join('')}
+      </div>`).join('')}`;
+  const img = await getImage(id);
+  const el = $('thumb-' + id);
+  if(el) el.src = img;
+}
+
+/* 학생별: 이 학생이 쓴 추리마다 대상 몬스터의 실제 설정과 나란히 */
+function fillWritten(id, box){
+  const arr = written[id] || [];
+  if(arr.length === 0){
+    box.innerHTML = '<div class="empty" style="padding:16px">이 학생이 제출한 추리가 아직 없어요.</div>';
+    return;
+  }
+  box.innerHTML = arr.map((g, i)=>{
+    const t = truthOf(g.target);
+    return `
+    <div class="guess-card">
+      <div class="gh">🔍 ${i+1}번째 · <span class="target">🐾 ${escapeHTML(monsterName(g.target))}</span> <span>(${escapeHTML(whoLabel(g.target))})</span><span class="t">${fmtTime(g.at)}</span></div>
+      ${GUESS_KEYS.map(k=>`
+      <div class="cmp">
+        <div class="c cg"><b>🔍 ${GUESS_TITLES[k]} 추리</b>${escapeHTML(g[k] || '')}</div>
+        <div class="c ct"><b>📖 실제 설정</b>${escapeHTML(t[k] || '(기록 없음)')}</div>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+/* ── 툴바 ── */
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    view = tab.dataset.view;
+    document.querySelectorAll('.tab').forEach(t=> t.classList.toggle('on', t === tab));
+    $('hintText').textContent = HINTS[view];
+    openIds.clear();
+    renderList();
+  });
+});
+document.querySelectorAll('.filter-chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    classFilter = chip.dataset.cf;
+    document.querySelectorAll('.filter-chip').forEach(c=> c.classList.toggle('on', c === chip));
+    renderList();
+  });
+});
+$('searchInput').addEventListener('input', renderList);
+$('refreshBtn').addEventListener('click', ()=>{
+  Object.keys(imageCache).forEach(k=> delete imageCache[k]);
+  loadAll();
+});
+$('expandBtn').addEventListener('click', ()=>{
+  const list = filteredStudents();
+  const allOpen = list.length > 0 && list.every(s=> openIds.has(s.id));
+  if(allOpen){
+    list.forEach(s=> openIds.delete(s.id));
+    $('expandBtn').textContent = '📂 전체 펼치기';
+  }else{
+    list.forEach(s=> openIds.add(s.id));
+    $('expandBtn').textContent = '📁 전체 접기';
+  }
+  renderList();
+});
+$('printBtn').addEventListener('click', async ()=>{
+  const list = filteredStudents();
+  list.forEach(s=> openIds.add(s.id));
+  renderList();
+  if(view === 'received'){
+    toast('그림을 불러온 뒤 인쇄 창을 열게요...');
+    await Promise.all(list.map(s=> getImage(s.id)));
+    list.forEach(s=>{ const el = $('thumb-' + s.id); if(el) el.src = imageCache[s.id] || MISSING_IMAGE; });
+  }
+  setTimeout(()=> window.print(), 300);
+});
+</script>
+</body>
+</html>
