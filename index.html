@@ -328,12 +328,15 @@ async function login(){
       if(cfg.exists) classMap = (cfg.data() || {}).map || {};
     }catch(e){ console.error(e); }
     const myClass = classMap[myKey] || null;
-    candidates = all.filter(s=>
-      s.id !== myKey && !(myClass && classMap[s.id] && classMap[s.id] === myClass)
-    );
+    const others = all.filter(s=> s.id !== myKey);
+    const isSameClass = s=> !!(myClass && classMap[s.id] && classMap[s.id] === myClass);
+    // 다른 분반 몬스터를 먼저 보여주고, 다 보고 나면(또는 다른 분반 기록이 아직 없으면) 같은 분반 몬스터도 보여줌
+    const otherClass = others.filter(s=> !isSameClass(s));
+    const sameClass = others.filter(isSameClass);
+    candidates = otherClass.concat(sameClass);
 
     await loadDone();
-    queue = shuffle(candidates.filter(s=> !doneMap[s.id]));
+    queue = shuffle(otherClass.filter(s=> !doneMap[s.id])).concat(shuffle(sameClass.filter(s=> !doneMap[s.id])));
     seenCount = Object.keys(doneMap).length;
 
     const CLASS_LABELS = {1:'A반', 2:'E반'};
