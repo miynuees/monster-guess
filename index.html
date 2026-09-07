@@ -321,22 +321,20 @@ async function login(){
       if((data.stages || []).length > 0) all.push({id: d.id, data});
     });
 
-    // 선생님이 분반을 지정해두면 나와 같은 분반의 몬스터는 빼고 보여줌 (서로 설정을 이미 아니까)
+    // 선생님이 분반을 지정해두면 나와 같은 분반의 몬스터만 보여줌 (분반별 활동)
     let classMap = {};
     try{
       const cfg = await db.collection('monsterConfig').doc('classes').get();
       if(cfg.exists) classMap = (cfg.data() || {}).map || {};
     }catch(e){ console.error(e); }
     const myClass = classMap[myKey] || null;
-    const others = all.filter(s=> s.id !== myKey);
-    const isSameClass = s=> !!(myClass && classMap[s.id] && classMap[s.id] === myClass);
-    // 다른 분반 몬스터를 먼저 보여주고, 다 보고 나면(또는 다른 분반 기록이 아직 없으면) 같은 분반 몬스터도 보여줌
-    const otherClass = others.filter(s=> !isSameClass(s));
-    const sameClass = others.filter(isSameClass);
-    candidates = otherClass.concat(sameClass);
+    // 내 분반이 지정돼 있으면 같은 분반 몬스터만, 미지정이면 전체
+    candidates = all.filter(s=>
+      s.id !== myKey && (!myClass || classMap[s.id] === myClass)
+    );
 
     await loadDone();
-    queue = shuffle(otherClass.filter(s=> !doneMap[s.id])).concat(shuffle(sameClass.filter(s=> !doneMap[s.id])));
+    queue = shuffle(candidates.filter(s=> !doneMap[s.id]));
     seenCount = Object.keys(doneMap).length;
 
     const CLASS_LABELS = {1:'A반', 2:'E반'};
