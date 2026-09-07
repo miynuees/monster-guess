@@ -132,6 +132,11 @@ button,input{font-family:inherit}
 .student-row .meta{color:var(--sub);font-size:10.5px;flex:none;white-space:nowrap}
 .student-row .arrow{flex:none;font-size:12px;color:var(--sub);transition:.2s}
 .student-row.open .arrow{transform:rotate(90deg)}
+.ibtn{
+  border:none;background:none;font-size:15px;padding:4px 5px;cursor:pointer;
+  border-radius:8px;line-height:1;transition:.12s;flex:none;
+}
+.ibtn:hover{background:#fff;transform:translateY(-1px)}
 .badge{
   flex:none;border:1.5px solid var(--ink);border-radius:99px;
   font-size:10px;font-weight:800;padding:2px 8px;white-space:nowrap;
@@ -187,15 +192,46 @@ button,input{font-family:inherit}
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-@media print{
-  body{background:#fff}
-  .app{max-width:none;padding:0}
-  .header,.toolbar,.tabs,.stats,.hint{display:none!important}
-  .card,.student-row,.detail,.guess-card{box-shadow:none}
-  .student-row{break-inside:avoid;margin-top:8px}
-  .detail{break-inside:avoid;background:#fff}
-  .detail .thumb{width:90px;height:90px}
+/* ── PDF 페이지 (화면 밖에서 그려서 이미지로 담음) ── */
+.pdf-holder{position:fixed;left:-10000px;top:0;width:794px}
+.pdf-page{
+  position:relative;width:794px;min-height:1123px;background:#fff;color:#2B2140;
+  font-family:'Noto Sans KR',sans-serif;padding:46px 52px 60px;box-sizing:border-box;
 }
+.pdf-page .pdf-foot{
+  position:absolute;left:52px;right:52px;bottom:24px;display:flex;justify-content:space-between;
+  font-size:10px;color:#6E6482;font-weight:600;border-top:1.5px solid #E3DEF7;padding-top:8px;
+}
+.pdf-title{
+  background:linear-gradient(135deg,#DCCBFA 0%,#B9F3E7 100%);
+  border:3px solid #2B2140;border-radius:20px;padding:18px 22px 16px;margin:0 0 16px;
+}
+.pdf-title h1{font-family:'Black Han Sans',sans-serif;font-weight:400;font-size:24px;margin:0 0 4px;line-height:1.25}
+.pdf-title p{margin:0;font-size:11.5px;color:#2B2140;opacity:.75;font-weight:600}
+.pdf-head{display:flex;gap:16px;align-items:stretch;margin:0 0 14px}
+.pdf-head img{width:170px;height:170px;flex:none;object-fit:cover;border-radius:14px;border:3px solid #2B2140;background:#fff}
+.pdf-truth{flex:1;background:#E1FBF5;border:2.5px solid #2B2140;border-radius:14px;padding:12px 16px}
+.pdf-truth .h{font-size:11.5px;font-weight:800;color:#0EA790;margin-bottom:6px}
+.pdf-kv{display:flex;gap:12px;padding:6px 0;border-bottom:1.5px solid rgba(43,33,64,.12);font-size:12.5px;line-height:1.65}
+.pdf-kv:last-child{border-bottom:none}
+.pdf-kv b{flex:none;width:52px;color:#2B2140}
+.pdf-kv span{flex:1;white-space:pre-wrap}
+.pdf-guess{background:#fff;border:2.5px solid #2B2140;border-radius:14px;padding:12px 16px;margin:0 0 10px;box-shadow:3px 3px 0 rgba(43,33,64,.9)}
+.pdf-guess .gh{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:#7440E0;margin-bottom:6px}
+.pdf-guess .gh .t{margin-left:auto;font-size:10.5px;color:#6E6482;font-weight:600}
+.pdf-guess .gh .target{color:#0EA790}
+.pdf-guess .gh .owner{color:#6E6482;font-weight:600;font-size:11px}
+.pdf-guess .with-thumb{display:flex;gap:12px;align-items:flex-start}
+.pdf-guess .with-thumb img{width:84px;height:84px;flex:none;object-fit:cover;border-radius:10px;border:2px solid #2B2140;background:#fff}
+.pdf-guess .with-thumb .body{flex:1;min-width:0}
+.pdf-cmp{display:flex;border:1.5px solid #E3DEF7;border-radius:10px;overflow:hidden;margin-top:5px}
+.pdf-cmp .c{flex:1;padding:7px 10px;font-size:12px;line-height:1.6;white-space:pre-wrap}
+.pdf-cmp .c b{display:block;font-size:10px;margin-bottom:2px}
+.pdf-cmp .cg{background:#F1E9FF}
+.pdf-cmp .cg b{color:#7440E0}
+.pdf-cmp .ct{background:#E1FBF5}
+.pdf-cmp .ct b{color:#0EA790}
+.pdf-empty{text-align:center;color:#6E6482;font-size:13px;font-weight:600;padding:22px;border:2px dashed #2B2140;border-radius:14px}
 </style>
 </head>
 <body>
@@ -234,7 +270,7 @@ button,input{font-family:inherit}
       <span class="count-pill" id="countPill">0명</span>
       <button class="btn-sm" id="expandBtn">📂 전체 펼치기</button>
       <button class="btn-sm" id="refreshBtn">🔄 새로고침</button>
-      <button class="btn-sm violet" id="printBtn">🖨️ 인쇄 / PDF</button>
+      <button class="btn-sm violet" id="exportAllBtn">📄 목록 전체 PDF 저장</button>
     </div>
     <div class="toolbar" style="margin-bottom:8px">
       <button class="filter-chip on" data-cf="all">전체</button>
@@ -442,12 +478,16 @@ function renderList(){
       ${classBadge(s.id)}
       ${countBadge(n)}
       <span class="meta" title="마지막 추리 시각">${fmtTime(last)}</span>
+      <button class="ibtn" data-act="pdf" title="이 학생만 PDF 저장">📄</button>
     </div>
     <div class="detail" id="detail-${escapeHTML(s.id)}" style="display:${isOpen ? 'block' : 'none'}"></div>`;
   }).join('');
 
   $('listBody').querySelectorAll('.student-row').forEach(row=>{
-    row.addEventListener('click', ()=> toggleDetail(row.dataset.id));
+    row.addEventListener('click', e=>{
+      if(e.target.closest('[data-act="pdf"]')){ exportOne(row.dataset.id); return; }
+      toggleDetail(row.dataset.id);
+    });
   });
   list.forEach(s=>{ if(openIds.has(s.id)) fillDetail(s.id); });
 }
@@ -569,16 +609,197 @@ $('expandBtn').addEventListener('click', ()=>{
   }
   renderList();
 });
-$('printBtn').addEventListener('click', async ()=>{
-  const list = filteredStudents();
-  list.forEach(s=> openIds.add(s.id));
-  renderList();
-  if(view === 'received'){
-    toast('그림을 불러온 뒤 인쇄 창을 열게요...');
-    await Promise.all(list.map(s=> getImage(s.id)));
-    list.forEach(s=>{ const el = $('thumb-' + s.id); if(el) el.src = imageCache[s.id] || MISSING_IMAGE; });
+/* ── PDF 저장 (몬스터 도감 선생님 페이지와 같은 방식: 화면 밖에 A4 페이지를 그려 이미지로 담음) ── */
+let busy = false;
+function loadScriptOnce(src){
+  loadScriptOnce._cache = loadScriptOnce._cache || {};
+  if(!loadScriptOnce._cache[src]){
+    loadScriptOnce._cache[src] = new Promise((resolve, reject)=>{
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = ()=>{ delete loadScriptOnce._cache[src]; reject(new Error('PDF 라이브러리를 불러오지 못했어요')); };
+      document.head.appendChild(s);
+    });
   }
-  setTimeout(()=> window.print(), 300);
+  return loadScriptOnce._cache[src];
+}
+async function ensurePdfLibs(){
+  await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+}
+function cleanName(s){ return String(s || '').trim().replace(/[^\w가-힣]/g,''); }
+function todayLabel(){ return new Date().toLocaleDateString('ko-KR', {year:'numeric', month:'long', day:'numeric'}); }
+function pdfKV(obj){
+  return GUESS_KEYS.map(k=> `<div class="pdf-kv"><b>${GUESS_TITLES[k]}</b><span>${escapeHTML(obj[k] || '(기록 없음)')}</span></div>`).join('');
+}
+
+/* 한 학생 분량의 블록(HTML 조각) 목록을 만듦. 블록 단위로 페이지를 나눔 */
+async function buildBlocks(id){
+  const s = studentById[id];
+  const d = s.data;
+  const who = `${escapeHTML(d.studentNo || '-')} ${escapeHTML(d.studentName || '')}`;
+  const cls = CLASS_LABELS[classMap[id]] ? ` · ${CLASS_LABELS[classMap[id]]}` : '';
+  const blocks = [];
+  if(view === 'received'){
+    const arr = received[id] || [];
+    const img = await getImage(id);
+    blocks.push(`
+      <div class="pdf-title">
+        <h1>🐾 ${escapeHTML(monsterName(id))}에 도착한 추리</h1>
+        <p>${who}${cls} · 받은 추리 ${arr.length}건 · ${todayLabel()}</p>
+      </div>
+      <div class="pdf-head">
+        <img src="${img}" alt="">
+        <div class="pdf-truth"><div class="h">📖 실제 설정</div>${pdfKV(truthOf(id))}</div>
+      </div>`);
+    if(arr.length === 0) blocks.push('<div class="pdf-empty">아직 이 몬스터에 도착한 추리가 없어요.</div>');
+    arr.forEach((g, i)=> blocks.push(`
+      <div class="pdf-guess">
+        <div class="gh">🔍 ${i+1}번째 추리 · ${escapeHTML(whoLabel(g.from))}<span class="t">${fmtTime(g.at)}</span></div>
+        ${pdfKV(g)}
+      </div>`));
+  }else{
+    const arr = written[id] || [];
+    blocks.push(`
+      <div class="pdf-title">
+        <h1>✍️ ${who}의 관찰 추리 기록</h1>
+        <p>${cls ? cls.slice(3) + ' · ' : ''}쓴 추리 ${arr.length}건 · ${todayLabel()}</p>
+      </div>`);
+    if(arr.length === 0) blocks.push('<div class="pdf-empty">이 학생이 제출한 추리가 아직 없어요.</div>');
+    for(let i = 0; i < arr.length; i++){
+      const g = arr[i];
+      const t = truthOf(g.target);
+      const img = await getImage(g.target);
+      blocks.push(`
+      <div class="pdf-guess">
+        <div class="gh">🔍 ${i+1}번째 · <span class="target">🐾 ${escapeHTML(monsterName(g.target))}</span><span class="owner">(${escapeHTML(whoLabel(g.target))})</span><span class="t">${fmtTime(g.at)}</span></div>
+        <div class="with-thumb">
+          <img src="${img}" alt="">
+          <div class="body">${GUESS_KEYS.map(k=>`
+            <div class="pdf-cmp">
+              <div class="c cg"><b>🔍 ${GUESS_TITLES[k]} 추리</b>${escapeHTML(g[k] || '')}</div>
+              <div class="c ct"><b>📖 실제 설정</b>${escapeHTML(t[k] || '(기록 없음)')}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>`);
+    }
+  }
+  return blocks;
+}
+
+/* 블록을 A4 높이(1123px)에 맞춰 페이지에 차례로 담음. 넘치면 다음 페이지로 */
+function paginate(holder, blocks, footLabel){
+  const pages = [];
+  const newPage = ()=>{
+    const p = document.createElement('div');
+    p.className = 'pdf-page';
+    holder.appendChild(p);
+    pages.push(p);
+    return p;
+  };
+  let page = newPage();
+  blocks.forEach(html=>{
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    const nodes = Array.from(tmp.children);
+    nodes.forEach(n=> page.appendChild(n));
+    if(page.scrollHeight > 1123 && page.children.length > nodes.length){
+      page = newPage();
+      nodes.forEach(n=> page.appendChild(n));
+    }
+  });
+  pages.forEach((p, i)=>{
+    const f = document.createElement('div');
+    f.className = 'pdf-foot';
+    f.innerHTML = `<span>2050 몬스터 도감 · 미확인생명체 관찰 추리</span><span>${escapeHTML(footLabel)} · ${i+1} / ${pages.length}</span>`;
+    p.appendChild(f);
+  });
+  return pages;
+}
+
+async function renderPagesToPdf(pdf, pages, firstPage){
+  for(let i = 0; i < pages.length; i++){
+    const canvas = await html2canvas(pages[i], {scale: 2, backgroundColor: '#ffffff', logging: false});
+    if(!firstPage || i > 0) pdf.addPage();
+    const imgData = canvas.toDataURL('image/jpeg', .92);
+    const h = canvas.height * 210 / canvas.width;
+    if(h > 297){
+      const s = 297 / h;
+      pdf.addImage(imgData, 'JPEG', (210 - 210 * s) / 2, 0, 210 * s, 297);
+    }else{
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, h);
+    }
+  }
+}
+
+async function renderStudentToPdf(pdf, id, first){
+  const holder = document.createElement('div');
+  holder.className = 'pdf-holder';
+  document.body.appendChild(holder);
+  try{
+    const blocks = await buildBlocks(id);
+    const pages = paginate(holder, blocks, whoLabel(id));
+    await new Promise(r=> setTimeout(r, 120));
+    await renderPagesToPdf(pdf, pages, first);
+  }finally{
+    holder.remove();
+  }
+}
+
+async function exportOne(id){
+  if(busy){ toast('지금 다른 PDF를 만드는 중이에요'); return; }
+  const s = studentById[id];
+  if(!s) return;
+  busy = true;
+  try{
+    toast('PDF를 만드는 중이에요...');
+    await ensurePdfLibs();
+    const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+    await renderStudentToPdf(pdf, id, true);
+    const kind = view === 'received' ? '받은추리' : '쓴추리';
+    pdf.save(`${cleanName(s.data.studentNo)}_${cleanName(s.data.studentName)}_${kind}.pdf`);
+    toast('PDF로 저장했어요');
+  }catch(e){
+    console.error(e);
+    toast('PDF 만들기에 실패했어요: ' + e.message);
+  }finally{
+    busy = false;
+  }
+}
+
+$('exportAllBtn').addEventListener('click', async ()=>{
+  if(busy){ toast('지금 다른 PDF를 만드는 중이에요'); return; }
+  const list = filteredStudents().filter(s=> countOf(s.id) > 0);
+  if(list.length === 0){ toast('PDF로 만들 추리가 없어요'); return; }
+  const kind = view === 'received' ? '받은 추리' : '쓴 추리';
+  if(!confirm(`지금 목록에서 ${kind}가 있는 ${list.length}명을 PDF 한 파일로 저장할까요?\n(학생 수가 많으면 몇 분 걸릴 수 있어요)`)) return;
+
+  busy = true;
+  const btn = $('exportAllBtn');
+  const prevText = btn.textContent;
+  btn.disabled = true;
+  try{
+    await ensurePdfLibs();
+    const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+    for(let n = 0; n < list.length; n++){
+      btn.textContent = `📄 만드는 중... ${n+1}/${list.length}`;
+      await renderStudentToPdf(pdf, list[n].id, n === 0);
+    }
+    const today = new Date().toISOString().slice(0,10);
+    const q = $('searchInput').value.trim();
+    const cfLabel = classFilter === '1' ? '_A반' : classFilter === '2' ? '_E반' : classFilter === 'none' ? '_분반미지정' : '';
+    pdf.save(`관찰추리_${view === 'received' ? '받은추리' : '쓴추리'}${cfLabel}${q ? '_' + cleanName(q) : ''}_${today}.pdf`);
+    toast(`${list.length}명의 기록을 PDF 한 파일로 저장했어요`);
+  }catch(e){
+    console.error(e);
+    toast('PDF 만들기에 실패했어요: ' + e.message);
+  }finally{
+    busy = false;
+    btn.disabled = false;
+    btn.textContent = prevText;
+  }
 });
 </script>
 </body>
