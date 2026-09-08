@@ -68,6 +68,7 @@ button,input,textarea{font-family:inherit}
   font-size:12px;font-weight:700;padding:8px 14px;cursor:pointer;transition:.12s;
   box-shadow:var(--shadow-sm);white-space:nowrap;
 }
+.btn-hub{text-decoration:none;display:inline-flex;align-items:center;line-height:1.2}
 .btn-sm:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(43,33,64,.9)}
 .btn-sm:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
 .btn-sm.violet{color:var(--violet-dark)}
@@ -160,10 +161,11 @@ button,input,textarea{font-family:inherit}
 <body>
 <div class="app">
 
-  <div class="toolbar" id="topToolbar" style="display:none">
-    <div class="student-badge"><span id="badgeText"></span><button type="button" id="switchBtn">전환</button></div>
+  <div class="toolbar" id="topToolbar">
+    <a class="btn-sm btn-hub" href="https://miynuees.github.io/monster-hub/" title="몬스터 연구소(대문)로 돌아가기">🧪 연구소</a>
+    <div class="student-badge" id="badgeWrap" style="display:none"><span id="badgeText"></span><button type="button" id="switchBtn">전환</button></div>
     <span class="toolbar-spacer"></span>
-    <button class="btn-sm violet" id="myGuessesBtn">📬 내 몬스터에 온 추리</button>
+    <button class="btn-sm violet" id="myGuessesBtn" style="display:none">📬 내 몬스터에 온 추리</button>
     <button class="btn-sm" id="backToGuessBtn" style="display:none">🔍 추리하러 가기</button>
   </div>
 
@@ -359,7 +361,7 @@ async function login(auto){
 
     const CLASS_LABELS = {1:'A반', 2:'E반'};
     $('badgeText').textContent = `${myNo} · ${myName}` + (CLASS_LABELS[myClass] ? ` · ${CLASS_LABELS[myClass]}` : '');
-    $('topToolbar').style.display = 'flex';
+    $('badgeWrap').style.display = 'flex';
     busy = false;
     btn.disabled = false;
     btn.textContent = '🚪 입장하기';
