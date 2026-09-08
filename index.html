@@ -55,8 +55,13 @@ button,input,textarea{font-family:inherit}
 .toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
 .student-badge{
   display:flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--ink);
-  border-radius:99px;padding:5px 14px;font-size:12px;font-weight:800;
+  border-radius:99px;padding:5px 6px 5px 14px;font-size:12px;font-weight:800;
 }
+.student-badge button{
+  border:none;background:var(--mint-3);color:var(--mint-dark);border-radius:99px;
+  padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;
+}
+.student-badge button:hover{background:var(--mint-2)}
 .toolbar-spacer{margin-left:auto}
 .btn-sm{
   border:2px solid var(--ink);border-radius:99px;background:#fff;color:var(--ink);
@@ -156,7 +161,7 @@ button,input,textarea{font-family:inherit}
 <div class="app">
 
   <div class="toolbar" id="topToolbar" style="display:none">
-    <div class="student-badge"><span id="badgeText"></span></div>
+    <div class="student-badge"><span id="badgeText"></span><button type="button" id="switchBtn">전환</button></div>
     <span class="toolbar-spacer"></span>
     <button class="btn-sm violet" id="myGuessesBtn">📬 내 몬스터에 온 추리</button>
     <button class="btn-sm" id="backToGuessBtn" style="display:none">🔍 추리하러 가기</button>
@@ -311,16 +316,38 @@ function shuffle(arr){
 }
 
 /* ── 로그인: 서버에서 몬스터 목록을 받아 추리 대기열 구성 ── */
-$('loginBtn').addEventListener('click', login);
+/* ── 허브·도감 사이트와 공유하는 로그인 메모 (같은 miynuees.github.io라 localStorage 공유) ── */
+const SHARED_LOGIN_KEY = 'monsterLogin';
+function readSharedLogin(){
+  try{
+    const v = JSON.parse(localStorage.getItem(SHARED_LOGIN_KEY) || 'null');
+    if(v && v.no && v.name) return v;
+  }catch(e){}
+  return null;
+}
+function writeSharedLogin(no, name){
+  try{ localStorage.setItem(SHARED_LOGIN_KEY, JSON.stringify({no, name, at: Date.now()})); }catch(e){}
+}
+function clearSharedLogin(){
+  try{ localStorage.removeItem(SHARED_LOGIN_KEY); }catch(e){}
+}
+
+$('loginBtn').addEventListener('click', ()=> login(false));
 ['loginNo','loginName'].forEach(id=>{
-  $(id).addEventListener('keydown', e=>{ if(e.key === 'Enter') login(); });
+  $(id).addEventListener('keydown', e=>{ if(e.key === 'Enter') login(false); });
+});
+$('switchBtn').addEventListener('click', ()=>{
+  if(!confirm('다른 학생으로 전환할까요? 지금까지 쓴 추리는 그대로 저장돼 있어요.')) return;
+  clearSharedLogin();
+  location.reload();
 });
 
-async function login(){
+async function login(auto){
   const no = $('loginNo').value.trim();
   const name = $('loginName').value.trim();
   if(!no || !name){ toast('학번과 이름을 모두 입력해주세요'); return; }
   if(busy) return;
+  writeSharedLogin(no, name); // 다른 몬스터 사이트에서도 같은 학생으로 바로 입장되게
   busy = true;
   const btn = $('loginBtn');
   btn.disabled = true;
@@ -336,6 +363,7 @@ async function login(){
     busy = false;
     btn.disabled = false;
     btn.textContent = '🚪 입장하기';
+    if(auto === true) toast(`${myName}(으)로 자동 입장했어요. 본인이 아니면 위의 '전환'을 누르세요`);
     nextMonster();
   }catch(e){
     console.error(e);
@@ -528,6 +556,16 @@ async function showMine(){
     $('mineBody').innerHTML = '<div class="empty">추리를 불러오지 못했어요. 인터넷 연결을 확인해주세요.</div>';
   }
 }
+
+// 허브(몬스터 연구소)나 도감 사이트에서 이미 로그인했다면 그 학생으로 바로 입장
+(function(){
+  const shared = readSharedLogin();
+  if(shared){
+    $('loginNo').value = shared.no;
+    $('loginName').value = shared.name;
+    login(true);
+  }
+})();
 </script>
 </body>
 </html>
